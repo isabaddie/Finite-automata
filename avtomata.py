@@ -160,20 +160,18 @@ class FiniteAutomata(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Pride flag background
         pride_colors = [
-            QColor("#e40303"),  # Red
-            QColor("#ff8c00"),  # Orange
-            QColor("#ffed00"),  # Yellow
-            QColor("#008026"),  # Green
-            QColor("#004dff"),  # Blue
-            QColor("#750787")   # Purple
+            QColor("#e40303"),
+            QColor("#ff8c00"),
+            QColor("#ffed00"),
+            QColor("#008026"),
+            QColor("#004dff"),
+            QColor("#750787") 
         ]
         stripe_height = self.height() // len(pride_colors)
         for i, color in enumerate(pride_colors):
             painter.fillRect(0, i * stripe_height, self.width(), stripe_height, color)
 
-        # Automaton arrows and structure
         arrow_color = QColor(0, 0, 0)
         text_color = QColor(0, 0, 0)
 
