@@ -123,10 +123,10 @@ class FiniteAutomata(QWidget):
             elif current_state == 'q3':
                 current_state = 'q4' if char == '0' else 'q3'
             elif current_state == 'q4':
-                break
+                current_state = 'q4' if char == '0' else 'q2'
             path.append(current_state)
 
-        if len(s) > 0 and s[-1] == '0' and path[-1] == 'q4':
+        if len(s) > 0 and path[-1] == 'q4':
             self.accepted = True
             self.result_label.setText("✅ Accepted")
         else:
@@ -160,13 +160,10 @@ class FiniteAutomata(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
+        # Pride flag background
         pride_colors = [
-            QColor("#e40303"),
-            QColor("#ff8c00"),
-            QColor("#ffed00"),
-            QColor("#008026"),
-            QColor("#004dff"),
-            QColor("#750787") 
+            QColor("#e40303"), QColor("#ff8c00"), QColor("#ffed00"),
+            QColor("#008026"), QColor("#004dff"), QColor("#750787")
         ]
         stripe_height = self.height() // len(pride_colors)
         for i, color in enumerate(pride_colors):
@@ -199,7 +196,9 @@ class FiniteAutomata(QWidget):
             offset_y1 = radius * dy / length
             line_start = QPoint(int(start.x() + offset_x1), int(start.y() + offset_y1))
             line_end = QPoint(int(end.x() - offset_x1), int(end.y() - offset_y1))
+            painter.setPen(QPen(arrow_color, 2))
             painter.drawLine(line_start, line_end)
+
             angle = math.atan2(dy, dx)
             arrow_size = 12
             arrow_p1 = QPoint(
@@ -224,29 +223,50 @@ class FiniteAutomata(QWidget):
         draw_arrow(centers['q2'], centers['q3'], "1", 0, -20)
         draw_arrow(centers['q2'], centers['q1'], "0", 20, 20)
         draw_arrow(centers['q3'], centers['q4'], "0")
+        draw_arrow(centers['q4'], centers['q2'], "1", -30, 0)
 
-        cx, cy = centers['q3'].x(), centers['q3'].y()
+        # q3 self-loop on '1'
+        cx3, cy3 = centers['q3'].x(), centers['q3'].y()
         loop_radius = 28
-        loop_rect = QRect(cx - loop_radius, cy - radius - loop_radius - 5, 2 * loop_radius, 2 * loop_radius)
+        loop_rect3 = QRect(cx3 - loop_radius, cy3 - radius - loop_radius - 5, 2 * loop_radius, 2 * loop_radius)
         painter.setPen(QPen(arrow_color, 2))
-        painter.drawArc(loop_rect, 0 * 16, 360 * 16)
-
-        arrow_tip = QPoint(cx, cy - radius - 5)
+        painter.drawArc(loop_rect3, 0 * 16, 360 * 16)
+        arrow_tip3 = QPoint(cx3, cy3 - radius - 5)
         arrow_size = 10
         angle = -math.pi / 2
         p1 = QPoint(
-            int(arrow_tip.x() - arrow_size * math.cos(angle - math.pi / 6)),
-            int(arrow_tip.y() - arrow_size * math.sin(angle - math.pi / 6))
+            int(arrow_tip3.x() - arrow_size * math.cos(angle - math.pi / 6)),
+            int(arrow_tip3.y() - arrow_size * math.sin(angle - math.pi / 6))
         )
         p2 = QPoint(
-            int(arrow_tip.x() - arrow_size * math.cos(angle + math.pi / 6)),
-            int(arrow_tip.y() - arrow_size * math.sin(angle + math.pi / 6))
+            int(arrow_tip3.x() - arrow_size * math.cos(angle + math.pi / 6)),
+            int(arrow_tip3.y() - arrow_size * math.sin(angle + math.pi / 6))
         )
         painter.setBrush(QBrush(arrow_color))
-        painter.drawPolygon(QPolygon([arrow_tip, p1, p2]))
+        painter.drawPolygon(QPolygon([arrow_tip3, p1, p2]))
         painter.setPen(QPen(text_color))
-        painter.drawText(cx - 10, cy - radius - loop_radius - 10, "1")
+        painter.drawText(cx3 - 10, cy3 - radius - loop_radius - 10, "1")
 
+        # q4 self-loop on '0'
+        cx4, cy4 = centers['q4'].x(), centers['q4'].y()
+        loop_rect4 = QRect(cx4 - loop_radius, cy4 - radius - loop_radius - 5, 2 * loop_radius, 2 * loop_radius)
+        painter.setPen(QPen(arrow_color, 2))
+        painter.drawArc(loop_rect4, 0 * 16, 360 * 16)
+        arrow_tip4 = QPoint(cx4, cy4 - radius - 5)
+        p1 = QPoint(
+            int(arrow_tip4.x() - arrow_size * math.cos(angle - math.pi / 6)),
+            int(arrow_tip4.y() - arrow_size * math.sin(angle - math.pi / 6))
+        )
+        p2 = QPoint(
+            int(arrow_tip4.x() - arrow_size * math.cos(angle + math.pi / 6)),
+            int(arrow_tip4.y() - arrow_size * math.sin(angle + math.pi / 6))
+        )
+        painter.setBrush(QBrush(arrow_color))
+        painter.drawPolygon(QPolygon([arrow_tip4, p1, p2]))
+        painter.setPen(QPen(text_color))
+        painter.drawText(cx4 - 10, cy4 - radius - loop_radius - 10, "0")
+
+        # Final state marking
         painter.setPen(QPen(arrow_color, 2))
         painter.drawEllipse(centers['q4'], radius + 4, radius + 4)
 
